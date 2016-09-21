@@ -3,7 +3,7 @@
 /*
  * This file is part of Mustache.php.
  *
- * (c) 2010-2014 Justin Hileman
+ * (c) 2010-2016 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,7 +19,7 @@ class Mustache_Test_FiveThree_Functional_FiltersTest extends PHPUnit_Framework_T
 
     public function setUp()
     {
-        $this->mustache = new Mustache_Engine;
+        $this->mustache = new Mustache_Engine();
     }
 
     /**
@@ -35,26 +35,26 @@ class Mustache_Test_FiveThree_Functional_FiltersTest extends PHPUnit_Framework_T
     {
         $helpers = array(
             'longdate' => function (\DateTime $value) {
-                    return $value->format('Y-m-d h:m:s');
-                },
+                return $value->format('Y-m-d h:m:s');
+            },
             'echo' => function ($value) {
-                    return array($value, $value, $value);
-                },
+                return array($value, $value, $value);
+            },
         );
 
         return array(
             array(
                 '{{% FILTERS }}{{ date | longdate }}',
                 $helpers,
-                (object) array('date' => new DateTime('1/1/2000', new DateTimeZone("UTC"))),
-                '2000-01-01 12:01:00'
+                (object) array('date' => new DateTime('1/1/2000', new DateTimeZone('UTC'))),
+                '2000-01-01 12:01:00',
             ),
 
             array(
                 '{{% FILTERS }}{{# word | echo }}{{ . }}!{{/ word | echo }}',
                 $helpers,
                 array('word' => 'bacon'),
-                'bacon!bacon!bacon!'
+                'bacon!bacon!bacon!',
             ),
         );
     }
@@ -71,13 +71,13 @@ class Mustache_Test_FiveThree_Functional_FiltersTest extends PHPUnit_Framework_T
             return sprintf('[[%s]]', $value);
         });
 
-        $foo = new \StdClass;
-        $foo->date = new DateTime('1/1/2000', new DateTimeZone("UTC"));
+        $foo = new \StdClass();
+        $foo->date = new DateTime('1/1/2000', new DateTimeZone('UTC'));
 
         $this->assertEquals('[[2000-01-01 12:01:00]]', $tpl->render($foo));
     }
 
-    const CHAINED_SECTION_FILTERS_TPL = <<<EOS
+    const CHAINED_SECTION_FILTERS_TPL = <<<'EOS'
 {{% FILTERS }}
 {{# word | echo | with_index }}
 {{ key }}: {{ value }}
@@ -143,21 +143,45 @@ EOS;
             array('{{% FILTERS }}{{ foo | bar }}',       array('foo' => 'FOO')),
             array('{{% FILTERS }}{{ foo | bar }}',       array('foo' => 'FOO', 'bar' => 'BAR')),
             array('{{% FILTERS }}{{ foo | bar }}',       array('foo' => 'FOO', 'bar' => array(1, 2))),
-            array('{{% FILTERS }}{{ foo | bar | baz }}', array('foo' => 'FOO', 'bar' => function () { return 'BAR'; })),
-            array('{{% FILTERS }}{{ foo | bar | baz }}', array('foo' => 'FOO', 'baz' => function () { return 'BAZ'; })),
-            array('{{% FILTERS }}{{ foo | bar | baz }}', array('bar' => function () { return 'BAR'; })),
-            array('{{% FILTERS }}{{ foo | bar | baz }}', array('baz' => function () { return 'BAZ'; })),
-            array('{{% FILTERS }}{{ foo | bar.baz }}',   array('foo' => 'FOO', 'bar' => function () { return 'BAR'; }, 'baz' => function () { return 'BAZ'; })),
+            array('{{% FILTERS }}{{ foo | bar | baz }}', array('foo' => 'FOO', 'bar' => function () {
+                return 'BAR';
+            })),
+            array('{{% FILTERS }}{{ foo | bar | baz }}', array('foo' => 'FOO', 'baz' => function () {
+                return 'BAZ';
+            })),
+            array('{{% FILTERS }}{{ foo | bar | baz }}', array('bar' => function () {
+                return 'BAR';
+            })),
+            array('{{% FILTERS }}{{ foo | bar | baz }}', array('baz' => function () {
+                return 'BAZ';
+            })),
+            array('{{% FILTERS }}{{ foo | bar.baz }}',   array('foo' => 'FOO', 'bar' => function () {
+                return 'BAR';
+            }, 'baz' => function () {
+                return 'BAZ';
+            })),
 
             array('{{% FILTERS }}{{# foo | bar }}{{ . }}{{/ foo | bar }}',             array()),
             array('{{% FILTERS }}{{# foo | bar }}{{ . }}{{/ foo | bar }}',             array('foo' => 'FOO')),
             array('{{% FILTERS }}{{# foo | bar }}{{ . }}{{/ foo | bar }}',             array('foo' => 'FOO', 'bar' => 'BAR')),
             array('{{% FILTERS }}{{# foo | bar }}{{ . }}{{/ foo | bar }}',             array('foo' => 'FOO', 'bar' => array(1, 2))),
-            array('{{% FILTERS }}{{# foo | bar | baz }}{{ . }}{{/ foo | bar | baz }}', array('foo' => 'FOO', 'bar' => function () { return 'BAR'; })),
-            array('{{% FILTERS }}{{# foo | bar | baz }}{{ . }}{{/ foo | bar | baz }}', array('foo' => 'FOO', 'baz' => function () { return 'BAZ'; })),
-            array('{{% FILTERS }}{{# foo | bar | baz }}{{ . }}{{/ foo | bar | baz }}', array('bar' => function () { return 'BAR'; })),
-            array('{{% FILTERS }}{{# foo | bar | baz }}{{ . }}{{/ foo | bar | baz }}', array('baz' => function () { return 'BAZ'; })),
-            array('{{% FILTERS }}{{# foo | bar.baz }}{{ . }}{{/ foo | bar.baz }}',     array('foo' => 'FOO', 'bar' => function () { return 'BAR'; }, 'baz' => function () { return 'BAZ'; })),
+            array('{{% FILTERS }}{{# foo | bar | baz }}{{ . }}{{/ foo | bar | baz }}', array('foo' => 'FOO', 'bar' => function () {
+                return 'BAR';
+            })),
+            array('{{% FILTERS }}{{# foo | bar | baz }}{{ . }}{{/ foo | bar | baz }}', array('foo' => 'FOO', 'baz' => function () {
+                return 'BAZ';
+            })),
+            array('{{% FILTERS }}{{# foo | bar | baz }}{{ . }}{{/ foo | bar | baz }}', array('bar' => function () {
+                return 'BAR';
+            })),
+            array('{{% FILTERS }}{{# foo | bar | baz }}{{ . }}{{/ foo | bar | baz }}', array('baz' => function () {
+                return 'BAZ';
+            })),
+            array('{{% FILTERS }}{{# foo | bar.baz }}{{ . }}{{/ foo | bar.baz }}',     array('foo' => 'FOO', 'bar' => function () {
+                return 'BAR';
+            }, 'baz' => function () {
+                return 'BAZ';
+            })),
         );
     }
 }
